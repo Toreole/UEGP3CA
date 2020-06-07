@@ -66,11 +66,15 @@ namespace UEGP3CA.Shouts
 
         IEnumerator HoldShout()
         {
-            wordsText.CrossFadeAlpha(1, 0.01f, true);
+            //setup some stuff.
             float timeHeld = 0f;
             float castTime = shout.FullCastTime;
             progCdFill.color = shoutColor;
+
+            //correct colors.
             StartFadeAlpha(buttonPress, 0.5f, 0.05f);
+            wordsText.CrossFadeAlpha(1, 0.01f, true);
+
             //as long as the button is held, update some UI and wait
             while (Input.GetButton(shoutButton))
             {
@@ -86,35 +90,9 @@ namespace UEGP3CA.Shouts
                 yield return null;
             }
 
-            //figure out the strength of the shout.
-            int words = 0; //default 0
-            for(int i = 1; i < shout.Size; i++)
-            {
-                if (timeHeld < shout[i].castTime)
-                    break;
-                words = i;
-            }
-
+            DoShoutEffects(timeHeld);
+            //reset stuff.
             StartFadeAlpha(buttonPress, 0.0f, 0.05f);
-
-            Collider[] hits = Physics.OverlapBox(transform.position + transform.TransformVector(boxOffset), boxHalfSize, transform.rotation, int.MaxValue);
-            Vector3 origin = transform.position;
-            anim.SetTrigger(shoutTrigger);
-
-            ShoutData.ShoutWord finalShout = shout[words];
-            float strength = finalShout.strength;
-            foreach(var hit in hits)
-            {
-                var rb = hit.GetComponent<Rigidbody>();
-                if(rb)
-                {
-                    var dir = hit.transform.position - origin;
-                    dir.Normalize();
-                    rb.AddForce(dir * strength, ForceMode.Impulse);
-                }
-            }
-            //set the cooldown.
-            remainingCooldown = (cooldown = finalShout.cooldown);
             progCdFill.color = cooldownColor;
             wordsText.CrossFadeAlpha(0, fadeOutTime, true);
         }
@@ -133,6 +111,11 @@ namespace UEGP3CA.Shouts
             }
         }
 
+        /// <summary>
+        /// Update the word word word text underneat the progress/cd slider.
+        /// Corrects for active / inactive word (color tag)
+        /// </summary>
+        /// <param name="timeHeld"></param>
         void UpdateWordText(float timeHeld)
         {
             StringBuilder builder = new StringBuilder();
@@ -148,6 +131,41 @@ namespace UEGP3CA.Shouts
                 builder.Append($"<color=#{(valid? activeHexCol : inactiveHexCol)}>{current.textWord}</color> ");
             }
             wordsText.text = builder.ToString();
+        }
+
+        /// <summary>
+        /// Apply the effects of the shout to objects in the scene.
+        /// </summary>
+        void DoShoutEffects(float timeHeld)
+        {
+            //figure out the strength of the shout.
+            int words = 0; //default 0
+            for (int i = 1; i < shout.Size; i++)
+            {
+                if (timeHeld < shout[i].castTime)
+                    break;
+                words = i;
+            }
+
+            //get all colliders.
+            Collider[] hits = Physics.OverlapBox(transform.position + transform.TransformVector(boxOffset), boxHalfSize, transform.rotation, int.MaxValue);
+            Vector3 origin = transform.position;
+            anim.SetTrigger(shoutTrigger);
+
+            ShoutData.ShoutWord finalShout = shout[words];
+            float strength = finalShout.strength;
+            foreach (var hit in hits)
+            {
+                var rb = hit.GetComponent<Rigidbody>();
+                if (rb)
+                {
+                    var dir = hit.transform.position - origin;
+                    dir.Normalize();
+                    rb.AddForce(dir * strength, ForceMode.Impulse);
+                }
+            }
+            //set the cooldown.
+            remainingCooldown = (cooldown = finalShout.cooldown);
         }
     }
 }
