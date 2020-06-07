@@ -14,6 +14,8 @@ namespace UEGP3CA.Shouts
         protected string shoutButton;
         [SerializeField]
         protected Vector3 boxOffset, boxHalfSize;
+        [SerializeField]
+        protected Animator anim;
 
         [Header("UI")]
         [SerializeField]
@@ -27,7 +29,11 @@ namespace UEGP3CA.Shouts
         [SerializeField]
         protected string inactiveHexCol, activeHexCol;
         [SerializeField]
+        protected float fadeOutTime = 2f;
+        [SerializeField]
         protected Image buttonPress;
+
+        readonly int shoutTrigger = Animator.StringToHash("Yeet");
 
         float remainingCooldown = 0;
         float cooldown = 0;
@@ -60,10 +66,11 @@ namespace UEGP3CA.Shouts
 
         IEnumerator HoldShout()
         {
+            wordsText.CrossFadeAlpha(1, 0.01f, true);
             float timeHeld = 0f;
             float castTime = shout.FullCastTime;
             progCdFill.color = shoutColor;
-
+            StartFadeAlpha(buttonPress, 0.5f, 0.05f);
             //as long as the button is held, update some UI and wait
             while (Input.GetButton(shoutButton))
             {
@@ -81,17 +88,21 @@ namespace UEGP3CA.Shouts
 
             //figure out the strength of the shout.
             int words = 0; //default 0
-            for(int i = 1; i < shout.words.Length; i++)
+            for(int i = 1; i < shout.Size; i++)
             {
-                if (timeHeld < shout.castTime[i])
+                if (timeHeld < shout[i].castTime)
                     break;
                 words = i;
             }
-            
+
+            StartFadeAlpha(buttonPress, 0.0f, 0.05f);
+
             Collider[] hits = Physics.OverlapBox(transform.position + transform.TransformVector(boxOffset), boxHalfSize, transform.rotation, int.MaxValue);
             Vector3 origin = transform.position;
+            anim.SetTrigger(shoutTrigger);
 
-            float strength = shout.strength[words];
+            ShoutData.ShoutWord finalShout = shout[words];
+            float strength = finalShout.strength;
             foreach(var hit in hits)
             {
                 var rb = hit.GetComponent<Rigidbody>();
@@ -103,23 +114,38 @@ namespace UEGP3CA.Shouts
                 }
             }
             //set the cooldown.
-            remainingCooldown = (cooldown = shout.cooldown[words]);
+            remainingCooldown = (cooldown = finalShout.cooldown);
             progCdFill.color = cooldownColor;
+            wordsText.CrossFadeAlpha(0, fadeOutTime, true);
+        }
+
+        //literally just a small helper because im lazy
+        void StartFadeAlpha(Image img, float alpha, float t) => StartCoroutine(FadeAlpha(img, alpha, t));
+        IEnumerator FadeAlpha(Image img, float targetAlpha, float time)
+        {
+            Color col = img.color;
+            float startAlpha = col.a;
+            for(float t = 0; t < time; t+= Time.deltaTime)
+            {
+                col.a = Mathf.Lerp(startAlpha, targetAlpha, t / time);
+                img.color = col;
+                yield return null;
+            }
         }
 
         void UpdateWordText(float timeHeld)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append($"{shout.words[0]} ");
+            builder.Append($"{shout[0].textWord} ");
+            ShoutData.ShoutWord current = default;
 
-            float cTime = 0f;
-            for(int i = 1; i < shout.words.Length; i++)
+            for(int i = 1; i < shout.Size; i++)
             {
-                cTime += shout.castTime[i];
-                bool valid = timeHeld >= cTime;
-                Debug.Log($"{i} valid: {valid}");
+                current = shout[i];
+                bool valid = timeHeld >= current.castTime; 
+
                 //change the color via the rich text tags.
-                builder.Append($"<color=#{(valid? activeHexCol : inactiveHexCol)}>{shout.words[i]}</color> ");
+                builder.Append($"<color=#{(valid? activeHexCol : inactiveHexCol)}>{current.textWord}</color> ");
             }
             wordsText.text = builder.ToString();
         }
