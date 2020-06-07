@@ -38,6 +38,11 @@ namespace UEGP3CA.Shouts
         float remainingCooldown = 0;
         float cooldown = 0;
 
+        private void Start()
+        {
+            wordsText.text = "";
+        }
+
         private void Update()
         {
             if(Input.GetButtonDown(shoutButton) && remainingCooldown <= 0)
