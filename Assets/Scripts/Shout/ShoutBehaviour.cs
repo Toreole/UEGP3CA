@@ -12,6 +12,8 @@ namespace UEGP3CA.Shouts
         protected ShoutData shout;
         [SerializeField]
         protected string shoutButton;
+        [SerializeField]
+        protected Vector3 boxOffset, boxHalfSize;
 
         [Header("UI")]
         [SerializeField]
@@ -43,6 +45,19 @@ namespace UEGP3CA.Shouts
             }
         }
 
+        //easy editor visualization.
+        private void OnDrawGizmos()
+        {
+            var tempMatrix = transform.localToWorldMatrix;
+            var worldMatrix = Gizmos.matrix;
+            Gizmos.matrix = tempMatrix;
+
+            Gizmos.color = new Color(0.3f, 0.2f, 0.8f, 0.5f);
+            Gizmos.DrawCube(boxOffset, boxHalfSize * 2);
+
+            Gizmos.matrix = worldMatrix;
+        }
+
         IEnumerator HoldShout()
         {
             float timeHeld = 0f;
@@ -63,7 +78,7 @@ namespace UEGP3CA.Shouts
 
                 yield return null;
             }
-            //TODO: handle the shouting.
+
             //figure out the strength of the shout.
             int words = 0; //default 0
             for(int i = 1; i < shout.words.Length; i++)
@@ -72,9 +87,8 @@ namespace UEGP3CA.Shouts
                     break;
                 words = i;
             }
-
-            //TODO: Actually do the shouting part.
-            Collider[] hits = Physics.OverlapBox(transform.position, Vector3.one * 4, transform.rotation, int.MaxValue);
+            
+            Collider[] hits = Physics.OverlapBox(transform.position + transform.TransformVector(boxOffset), boxHalfSize, transform.rotation, int.MaxValue);
             Vector3 origin = transform.position;
 
             float strength = shout.strength[words];
