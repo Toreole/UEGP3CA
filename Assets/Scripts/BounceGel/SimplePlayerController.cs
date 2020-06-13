@@ -72,7 +72,7 @@ namespace UEGP3CA
         {
             var movement = new Vector3(0, 0);
             //1. Check for grounded
-            if(Physics.SphereCast(transform.position, 0.1f, Vector3.down, out RaycastHit hit, halfHeight, groundMask))
+            if(Physics.SphereCast(transform.position, halfHeight, Vector3.down, out RaycastHit hit, 0.1f, groundMask))
             {
                 if(!isGrounded)
                 {
