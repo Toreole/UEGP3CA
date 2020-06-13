@@ -21,13 +21,46 @@ namespace UEGP3CA
         protected float halfHeight = 1f;
         [SerializeField]
         protected LayerMask groundMask;
+        [SerializeField]
+        protected Transform cam;
+        [SerializeField]
+        protected string rotInputX = "Mouse Y", rotInputY = "Mouse X";
+        [SerializeField]
+        protected float rotationSpeed = 90f;
+        [SerializeField]
+        protected Vector2 rotXMinMax;
 
         float yVel;
+        float currentXRot = 0f;
 
         Vector3 previousVelXZPlane;
 
         //This should be kept simple for now, just move and jump
         void Update()
+        {
+            Rotate();
+            Move();
+        }
+
+        void Rotate()
+        {
+            float xIn = -Input.GetAxis(rotInputX);
+            float yIn = Input.GetAxis(rotInputY);
+
+            float cRot = rotationSpeed * Time.deltaTime;
+
+            transform.Rotate(0, cRot * yIn, 0);
+
+            //rotate camera
+            //currentXRot => cam.eulerAngles.x essentially (80 = down, -80 = up)
+            //rotXMinMax.x = -80
+            //rotXMinMax.y = 80;
+            var delta = Mathf.Clamp(cRot * xIn, rotXMinMax.x - currentXRot, rotXMinMax.y - currentXRot);
+            currentXRot += delta;
+            cam.Rotate(delta, 0, 0);
+        }
+
+        void Move()
         {
             var movement = new Vector3(0, yVel);
             //1. Check for grounded

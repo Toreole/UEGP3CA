@@ -1,0 +1,4 @@
+This is bouncy gel from Portal 2
+
+Collide with surface while touching gel: reflect off it
+jump on the gel: jump higher.
