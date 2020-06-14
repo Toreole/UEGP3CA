@@ -485,7 +485,7 @@ MonoBehaviour:
   speed: 4
   moveInputX: Horizontal
   moveInputZ: Vertical
-  airControl: 0.016
+  airControl: 0.504
   jumpInput: Jump
   crouchButton: Crouch
   jumpSpeed: 4

@@ -13,8 +13,8 @@ namespace UEGP3CA
         protected float speed = 2.0f;
         [SerializeField]
         protected string moveInputX = "Horizontal", moveInputZ = "Vertical";
-        [SerializeField, Range(0f, 1f)]
-        protected float airControl;
+        [SerializeField, Range(0f, 2f)]
+        protected float airControl = 1f;
         [SerializeField]
         protected string jumpInput = "Jump", crouchButton = "Crouch";
         [SerializeField]
@@ -35,12 +35,13 @@ namespace UEGP3CA
         protected LayerMask gelMask;
 
         private Vector3 startPos;
-
-        float yVel;
+        float yVel = 0f;
         float currentXRot = 0f;
 
         bool isGrounded;
+        bool isBouncyGround = false;
         Vector3 previousXZVelocity;
+        Vector3 previousVelocity;
 
         private void Start() 
         {
@@ -76,25 +77,38 @@ namespace UEGP3CA
 
         void Move()
         {
-            var movement = new Vector3(0, 0);
+            var movement = Vector3.zero;
             var currentMovement = GetMoveInputDir() * speed;
             //1. Check for grounded
             if(Physics.SphereCast(transform.position, halfHeight, Vector3.down, out RaycastHit hit, 0.1f, groundMask))
             {
-                isGrounded = true;
-                //XZ Movement
-                
-                movement += currentMovement;
-                previousXZVelocity = movement;
-                movement.y = yVel;
-
-                //jumping
-                if(Input.GetButtonDown(jumpInput))
+                //Check if the ground is bouncy.
+                isBouncyGround = Physics.CheckSphere(hit.point, 0.15f, gelMask);
+                //if just entering ground, and its bouncy, reflect, only do this if not crouching.
+                if(!isGrounded && isBouncyGround && !Input.GetButton(crouchButton))
                 {
-                    yVel = jumpSpeed;
+                    var inDir = previousVelocity.normalized;
+                        Debug.DrawRay(hit.point - inDir, inDir, Color.cyan, 5);
+                    movement = Vector3.Reflect(previousVelocity, hit.normal);
+                        Debug.DrawRay(hit.point, hit.normal, Color.green, 5);
+                        Debug.DrawRay(hit.point, movement.normalized, Color.magenta, 5);
+                    //set caches.
+                    SetCacheVars();
+                }
+                else 
+                {
+                    isGrounded = true;
+                    movement += currentMovement;
+                    previousXZVelocity = movement;
                     movement.y = yVel;
-                    isGrounded = false;
-                    Debug.Log("Jump!");
+
+                    //jumping
+                    if(Input.GetButtonDown(jumpInput))
+                    {
+                        yVel = isBouncyGround ? jumpSpeed * 2f : jumpSpeed;
+                        movement.y = yVel;
+                        isGrounded = false;
+                    }
                 }
             } 
             else 
@@ -107,12 +121,31 @@ namespace UEGP3CA
                 }
                 isGrounded = false;
                 yVel += Physics.gravity.y * Time.deltaTime;
-                movement = Vector3.RotateTowards(previousXZVelocity, currentMovement, Mathf.PI * airControl, 0.1f);
+                movement = Vector3.RotateTowards(previousXZVelocity, currentMovement, Mathf.PI * airControl * Time.deltaTime, 0.01f);
                 previousXZVelocity = movement;
                 movement.y = yVel;
+                //raycast into the moving direction, if there is gel, reflect / bounce off it.
+                if(previousXZVelocity.sqrMagnitude > 0.25f)
+                {
+                    if(Physics.Raycast(transform.position, previousXZVelocity.normalized, out RaycastHit gelHit, halfHeight,  gelMask))
+                    {
+                        Debug.DrawRay(gelHit.point, gelHit.normal, Color.red, 5);
+                        movement = Vector3.Reflect(movement, gelHit.normal);
+                        //set caches.
+                        SetCacheVars();
+                    }
+                }
             }
             
+            previousVelocity = movement;
             controller.Move(movement * Time.deltaTime);
+
+            void SetCacheVars()
+            {
+                yVel = movement.y;
+                previousXZVelocity = new Vector3(movement.x, 0, movement.z);
+                previousVelocity = movement;
+            }
         }
 
         Vector3 GetMoveInputDir()
