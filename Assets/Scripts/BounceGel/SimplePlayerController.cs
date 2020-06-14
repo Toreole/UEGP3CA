@@ -43,6 +43,8 @@ namespace UEGP3CA
         bool isBouncyGround = false;
         Vector3 previousXZVelocity;
         Vector3 previousVelocity;
+        //only for Move();
+        Vector3 movement;
 
         private void Start() 
         {
@@ -75,7 +77,6 @@ namespace UEGP3CA
 
         void Move()
         {
-            var movement = Vector3.zero;
             var currentMovement = GetMoveInputDir() * speed;
             //1. Check for grounded
             if(Physics.SphereCast(transform.position, halfHeight, Vector3.down, out RaycastHit hit, 0.1f, groundMask))
@@ -119,8 +120,9 @@ namespace UEGP3CA
                 isGrounded = false;
                 //accelerate on the vertical axis
                 yVel += Physics.gravity.y * Time.deltaTime;
-                //rotate movement towards the input, max angle = airControl * pi / second
-                movement = Vector3.RotateTowards(previousXZVelocity, currentMovement, Mathf.PI * airControl * Time.deltaTime, 0.01f);
+                //air control.
+                movement = Vector3.ClampMagnitude(previousXZVelocity + (currentMovement * airControl), Mathf.Max(speed, previousXZVelocity.magnitude));
+                //movement = Vector3.RotateTowards(previousXZVelocity, currentMovement, Mathf.PI * airControl * Time.deltaTime, 0.01f);
                 //set the previous XZ Velocity
                 previousXZVelocity = movement;
                 //set the movement.y to actually do things.
@@ -167,6 +169,10 @@ namespace UEGP3CA
             previousVelocity = launchVelocity;
             previousXZVelocity = new Vector3(launchVelocity.x, 0, launchVelocity.z);
             yVel = launchVelocity.y;
+            Debug.DrawRay(transform.position, launchVelocity, Color.red, 5);
+            Debug.DrawRay(transform.position, previousXZVelocity, Color.magenta, 5);
+            Debug.DrawRay(transform.position, new Vector3(0, yVel), Color.green, 5);
+            transform.position += launchVelocity * Time.deltaTime;
             isGrounded = false;
         }
     }
