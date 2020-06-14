@@ -24,26 +24,47 @@ namespace UEGP3CA.Edit
             vectorProperty.vector3Value = launchSpeed;
             serializedObject.ApplyModifiedProperties();
             //helpers.
-            float g = Mathf.Abs(Physics.gravity.y);
-            Vector3 xzSpeed = new Vector3(launchSpeed.x, 0, launchSpeed.z);
-            //1. calculate flight time.
-            float halfT = launchSpeed.y / g;
-            //2. figure out highest point. 
-            Vector3 highPoint = transform.position;
-            highPoint.y += Mathf.Pow(launchSpeed.y, 2) / (2*g);
-            highPoint += xzSpeed * halfT;
-            //3. get the endpoint.
-            Vector3 endPoint = transform.position + xzSpeed * (2*halfT);
-            //4. tangents.
-            var tanL = launchSpeed.magnitude / Mathf.PI;
-            var startTan = launchSpeed.normalized * tanL;
-            var midTan = xzSpeed.normalized * tanL;
-            var endTan = startTan;
-                endTan.y *= -1f;
-            //draw a preview of how it flies.
-            Handles.DrawBezier(transform.position, highPoint, transform.position + startTan, highPoint - midTan, Color.cyan, Texture2D.whiteTexture, 1);
-            Handles.DrawBezier(highPoint, endPoint, highPoint+midTan, endPoint-endTan, Color.cyan, Texture2D.whiteTexture, 1);
+            DrawArc(transform.position, launchSpeed);
+        }
 
+        void DrawArc(Vector3 start, Vector3 startTangent)
+        {
+            //helpers.
+            float g = Mathf.Abs(Physics.gravity.y);
+            Vector3 xzSpeed = new Vector3(startTangent.x, 0, startTangent.z);
+
+            //1. calculate flight time.
+            float halfT = startTangent.y / g;
+
+            //2. figure out highest point. 
+            Vector3 highPoint = start;
+            highPoint.y += Mathf.Pow(startTangent.y, 2) / (2*g);
+            highPoint += xzSpeed * halfT;
+
+            //3. get the endpoint.
+            Vector3 endPoint = start + xzSpeed * (2*halfT);
+
+            float distance = Vector3.Distance(start, endPoint);
+            float height = highPoint.y - Vector3.Lerp(start, endPoint, 0.5f).y;
+            float arcLength = GetArcLength(distance, height);
+        }
+
+        //ARC LENGTH OF PARABOLA
+        //     1                      b²     4*a + SQR(b² + 16 * a²)
+        // L = - SQR(b² + 16 * a²) + --- ln( ---------------------- )
+        //     2                     8*a               b        
+        //b = distance from start to end
+        //a = "height"/ vertical distance from midpoint to highest point.
+        float GetArcLength(float distance, float height)
+        {
+            float bSquare = Mathf.Pow(distance, 2.0f); //b²
+            float aSquare = Mathf.Pow(height, 2.0f); // a²
+            float bSq16aSq = Mathf.Sqrt(bSquare + 16.0f * aSquare); // = SQR(b² + 16 * a²)
+
+            double addA = 0.5D * bSq16aSq;
+            double addB = (bSquare /  (8.0 * height)) * Mathf.Log((4.0f*height + bSq16aSq) / distance);
+
+            return (float)(addA + addB);
         }
     }
 }
