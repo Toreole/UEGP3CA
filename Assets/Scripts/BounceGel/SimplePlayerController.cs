@@ -13,6 +13,8 @@ namespace UEGP3CA
         protected float speed = 2.0f;
         [SerializeField]
         protected string moveInputX = "Horizontal", moveInputZ = "Vertical";
+        [SerializeField, Range(0f, 1f)]
+        protected float airControl;
         [SerializeField]
         protected string jumpInput = "Jump", crouchButton = "Crouch";
         [SerializeField]
@@ -31,23 +33,27 @@ namespace UEGP3CA
         protected Vector2 rotXMinMax;
         [SerializeField]
         protected LayerMask gelMask;
-        [SerializeField]
-        protected string blueGelTag;
+
+        private Vector3 startPos;
 
         float yVel;
         float currentXRot = 0f;
 
-        Vector3 previousVelXZPlane, previousVelocity;
-        bool isOnBouncyGel = false;
         bool isGrounded;
-        bool stick = false;
+        Vector3 previousXZVelocity;
+
+        private void Start() 
+        {
+            startPos = transform.position;
+        }
 
         //This should be kept simple for now, just move and jump
         void Update()
         {
             Rotate();
             Move();
-            CheckForGel();
+            if(Input.GetKeyDown(KeyCode.R))
+                transform.position = startPos;
         }
 
         void Rotate()
@@ -71,79 +77,52 @@ namespace UEGP3CA
         void Move()
         {
             var movement = new Vector3(0, 0);
+            var currentMovement = GetMoveInputDir() * speed;
             //1. Check for grounded
             if(Physics.SphereCast(transform.position, halfHeight, Vector3.down, out RaycastHit hit, 0.1f, groundMask))
             {
-                if(!isGrounded)
-                {
-                    //if it wasnt grounded before, do this:
-                    StartCoroutine(Delay(
-                        () => { stick = true; }
-                    , 0.15f));
-                }
                 isGrounded = true;
                 //XZ Movement
-                float xInput = Input.GetAxis(moveInputX);
-                float zInput = Input.GetAxis(moveInputZ);
-
-                var dir = transform.forward * zInput + transform.right * xInput;
-                dir = Vector3.ClampMagnitude(dir, 1f);
-
-                movement += dir * speed;
-                previousVelXZPlane = movement;
-
-                if(stick)
-                {
-                    yVel = Mathf.Clamp(yVel, -0.5f, 0.0f);
-                }
+                
+                movement += currentMovement;
+                previousXZVelocity = movement;
                 movement.y = yVel;
 
                 //jumping
                 if(Input.GetButtonDown(jumpInput))
                 {
-                    yVel = isOnBouncyGel? 2f * jumpSpeed: jumpSpeed;
+                    yVel = jumpSpeed;
                     movement.y = yVel;
-                    stick = false;
+                    isGrounded = false;
+                    Debug.Log("Jump!");
                 }
             } 
             else 
             {
+                //just left the ground on this frame.
+                if(isGrounded)
+                {
+                    //reset the yVel on the first frame?
+                    yVel = Mathf.Clamp(yVel, 0, 100);
+                }
                 isGrounded = false;
-                stick = false;
-                movement += previousVelXZPlane;
                 yVel += Physics.gravity.y * Time.deltaTime;
+                movement = Vector3.RotateTowards(previousXZVelocity, currentMovement, Mathf.PI * airControl, 0.1f);
+                previousXZVelocity = movement;
                 movement.y = yVel;
             }
             
-            previousVelocity = movement;
             controller.Move(movement * Time.deltaTime);
         }
 
-        void CheckForGel()
+        Vector3 GetMoveInputDir()
         {
-            //One combined raycast towards the velocity direction.
-            if(previousVelocity.sqrMagnitude > 0.2) //shouldnt be tiny or 0
-            {
-                if(Physics.Raycast(transform.position, previousVelocity.normalized, out RaycastHit hit, halfHeight + 0.3f, gelMask))
-                {
-                    if(Input.GetButton(crouchButton) && hit.normal.y > 0.8)
-                    {
-                        return;
-                    }
-                    var angle = Vector3.Angle(-previousVelocity, hit.normal) * Mathf.Deg2Rad;
+            float xInput = Input.GetAxis(moveInputX);
+            float zInput = Input.GetAxis(moveInputZ);
 
-                    //the direction the player should now go in.
-                    var newDir = Vector3.Reflect(previousVelocity.normalized, hit.normal);
-                    previousVelocity = previousVelocity.magnitude * newDir;
-
-                    previousVelXZPlane = new Vector3(previousVelocity.x, 0, previousVelocity.z);
-                    yVel = previousVelocity.y;
-                }
-            }
-            //Raycast down
-            if(isGrounded)
-                isOnBouncyGel = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, halfHeight+0.1f, gelMask);
-            }
+            var dir = transform.forward * zInput + transform.right * xInput;
+            return Vector3.ClampMagnitude(dir, 1f);
+        }
 
         IEnumerator Delay(System.Action action, float time)
         {
