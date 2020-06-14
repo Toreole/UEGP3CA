@@ -47,6 +47,32 @@ namespace UEGP3CA.Edit
             float distance = Vector3.Distance(start, endPoint);
             float height = highPoint.y - Vector3.Lerp(start, endPoint, 0.5f).y;
             float arcLength = GetArcLength(distance, height);
+
+            //draw line segments every 0.5 units
+            Vector3 lineStart = transform.position;
+            //the "velocity" at which the curve is being drawn.
+            Vector3 velocity = startTangent;
+
+            //i like cyan :)
+            Handles.color = Color.cyan;
+            for(int i = 0; i < arcLength * 1; i++)
+            {
+                //speed in units / s
+                var speed = velocity.magnitude;
+                //time delta to do 0.5 units of movement
+                var dt = 1f / speed;
+
+                //the next line point.
+                Vector3 lineEnd = lineStart + velocity * dt;
+
+                //Draw this segment.
+                Handles.DrawLine(lineStart, lineEnd);
+
+                //apply gravity.
+                velocity.y += Physics.gravity.y * dt;
+                //move the line start.
+                lineStart = lineEnd;
+            }
         }
 
         //ARC LENGTH OF PARABOLA
