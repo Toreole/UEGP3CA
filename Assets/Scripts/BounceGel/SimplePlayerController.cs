@@ -145,7 +145,7 @@ namespace UEGP3CA
             {
                 Debug.Log("Reflect");
                 //Reflect the Vector off the normal
-                movement = Vector3.Reflect(movement, normal);
+                movement = Vector3.Reflect(previousVelocity, normal);
                 //Set the cache vars.
                 yVel = movement.y;
                 previousXZVelocity = new Vector3(movement.x, 0, movement.z);
