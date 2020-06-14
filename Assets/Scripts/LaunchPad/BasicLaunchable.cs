@@ -13,7 +13,7 @@ namespace UEGP3CA
 
         public void Launch(Vector3 vel)
         {
-            body.AddForce(vel, ForceMode.VelocityChange);
+            body.velocity = vel;
         }
     }
 }

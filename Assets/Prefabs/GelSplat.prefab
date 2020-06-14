@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1354678653901667801
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1354678653901562361}
+  - component: {fileID: 1354678653894061851}
+  - component: {fileID: 1354678653901667800}
+  m_Layer: 9
+  m_Name: GelSplat
+  m_TagString: BlueGel
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1354678653901562361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1354678653901667801}
+  m_LocalRotation: {x: 0.7003962, y: 0.09718667, z: -0.09718668, w: 0.7003962}
+  m_LocalPosition: {x: 0.01, y: -6.947, z: 9.21}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 90.00001, y: 0, z: -15.800001}
+--- !u!119 &1354678653894061851
+Projector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1354678653901667801}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_NearClipPlane: -0.2
+  m_FarClipPlane: 0.2
+  m_FieldOfView: 30.6
+  m_AspectRatio: 1
+  m_Orthographic: 1
+  m_OrthographicSize: 2.06
+  m_Material: {fileID: 2100000, guid: 76bf99d59244b0b4f82dbc13e6cbd3d7, type: 2}
+  m_IgnoreLayers:
+    serializedVersion: 2
+    m_Bits: 512
+--- !u!65 &1354678653901667800
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1354678653901667801}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 4, y: 4, z: 0.1}
+  m_Center: {x: 0, y: 0, z: 0}

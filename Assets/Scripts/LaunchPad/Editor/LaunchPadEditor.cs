@@ -18,13 +18,19 @@ namespace UEGP3CA.Edit
         private void OnSceneGUI() 
         {
             //change the launch setting.
-            Vector3 launchSpeed = Handles.DoPositionHandle(transform.position + vectorProperty.vector3Value, transform.rotation) - transform.position;
-            
-            //Handles.DrawLines(Vector3[])
-            vectorProperty.vector3Value = launchSpeed;
+            //this is currently world space, should be local space.
+            //Vector3 launchSpeed = Handles.DoPositionHandle(transform.position + vectorProperty.vector3Value, transform.rotation) - transform.position;
+
+            Vector3 worldPosition = Handles.DoPositionHandle(transform.TransformPoint(vectorProperty.vector3Value), transform.rotation);
+            Vector3 result = transform.InverseTransformPoint(worldPosition);
+            result.x = 0;
+            //Handles.DrawWireCube(result, Vector3.one);
+
+            vectorProperty.vector3Value = result;
             serializedObject.ApplyModifiedProperties();
-            //helpers.
-            DrawArc(transform.position, launchSpeed);
+            //draw the arc.
+            result = transform.TransformVector(result);
+            DrawArc(transform.position, result);
         }
 
         void DrawArc(Vector3 start, Vector3 startTangent)
@@ -43,6 +49,7 @@ namespace UEGP3CA.Edit
 
             //3. get the endpoint.
             Vector3 endPoint = start + xzSpeed * (2*halfT);
+            (target as LaunchPad).LandingZone.position = endPoint;
 
             float distance = Vector3.Distance(start, endPoint);
             float height = highPoint.y - Vector3.Lerp(start, endPoint, 0.5f).y;
@@ -55,7 +62,7 @@ namespace UEGP3CA.Edit
 
             //i like cyan :)
             Handles.color = Color.cyan;
-            for(int i = 0; i < arcLength * 1; i++)
+            for(int i = 0; i < arcLength * 1 + 1; i++)
             {
                 //speed in units / s
                 var speed = velocity.magnitude;

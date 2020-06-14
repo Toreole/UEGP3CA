@@ -5,7 +5,7 @@ using UnityEngine;
 namespace UEGP3CA
 {
     [RequireComponent(typeof(CharacterController))]
-    public class SimplePlayerController : MonoBehaviour
+    public class SimplePlayerController : MonoBehaviour, ILaunchable
     {
         [SerializeField]
         protected CharacterController controller;
@@ -86,6 +86,7 @@ namespace UEGP3CA
                 if(!isGrounded && isBouncyGround && !Input.GetButton(crouchButton))
                 {
                     ReflectOff(hit.normal);
+                    isGrounded = true;
                 }
                 else 
                 {
@@ -142,6 +143,7 @@ namespace UEGP3CA
             //Local helper function to make the code a little nicer.
             void ReflectOff(Vector3 normal)
             {
+                Debug.Log("Reflect");
                 //Reflect the Vector off the normal
                 movement = Vector3.Reflect(movement, normal);
                 //Set the cache vars.
@@ -158,6 +160,14 @@ namespace UEGP3CA
 
             var dir = transform.forward * zInput + transform.right * xInput;
             return Vector3.ClampMagnitude(dir, 1f);
+        }
+
+        public void Launch(Vector3 launchVelocity)
+        {
+            previousVelocity = launchVelocity;
+            previousXZVelocity = new Vector3(launchVelocity.x, 0, launchVelocity.z);
+            yVel = launchVelocity.y;
+            isGrounded = false;
         }
     }
 }
