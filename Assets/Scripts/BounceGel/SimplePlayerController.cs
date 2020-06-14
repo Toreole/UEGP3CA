@@ -34,6 +34,7 @@ namespace UEGP3CA
         [SerializeField]
         protected LayerMask gelMask;
 
+        //runtime cache and helper vars.
         private Vector3 startPos;
         float yVel = 0f;
         float currentXRot = 0f;
@@ -66,10 +67,7 @@ namespace UEGP3CA
 
             transform.Rotate(0, cRot * yIn, 0);
 
-            //rotate camera
-            //currentXRot => cam.eulerAngles.x essentially (80 = down, -80 = up)
-            //rotXMinMax.x = -80
-            //rotXMinMax.y = 80;
+            //rotate camera to a given limit.
             var delta = Mathf.Clamp(cRot * xIn, rotXMinMax.x - currentXRot, rotXMinMax.y - currentXRot);
             currentXRot += delta;
             cam.Rotate(delta, 0, 0);
@@ -87,24 +85,21 @@ namespace UEGP3CA
                 //if just entering ground, and its bouncy, reflect, only do this if not crouching.
                 if(!isGrounded && isBouncyGround && !Input.GetButton(crouchButton))
                 {
-                    var inDir = previousVelocity.normalized;
-                        Debug.DrawRay(hit.point - inDir, inDir, Color.cyan, 5);
-                    movement = Vector3.Reflect(previousVelocity, hit.normal);
-                        Debug.DrawRay(hit.point, hit.normal, Color.green, 5);
-                        Debug.DrawRay(hit.point, movement.normalized, Color.magenta, 5);
-                    //set caches.
-                    SetCacheVars();
+                    ReflectOff(hit.normal);
                 }
                 else 
                 {
+                    //set grounded.
                     isGrounded = true;
-                    movement += currentMovement;
+                    //set movement to be the input.
+                    movement = currentMovement;
                     previousXZVelocity = movement;
                     movement.y = yVel;
 
-                    //jumping
+                    //jump when the button is pressed.
                     if(Input.GetButtonDown(jumpInput))
                     {
+                        //jump higher when standing on bouncy ground.
                         yVel = isBouncyGround ? jumpSpeed * 2f : jumpSpeed;
                         movement.y = yVel;
                         isGrounded = false;
@@ -116,32 +111,40 @@ namespace UEGP3CA
                 //just left the ground on this frame.
                 if(isGrounded)
                 {
-                    //reset the yVel on the first frame?
+                    //clamp yVelocity upon leaving the ground. shouldnt be negative.
                     yVel = Mathf.Clamp(yVel, 0, 100);
                 }
+                //set grounded
                 isGrounded = false;
+                //accelerate on the vertical axis
                 yVel += Physics.gravity.y * Time.deltaTime;
+                //rotate movement towards the input, max angle = airControl * pi / second
                 movement = Vector3.RotateTowards(previousXZVelocity, currentMovement, Mathf.PI * airControl * Time.deltaTime, 0.01f);
+                //set the previous XZ Velocity
                 previousXZVelocity = movement;
+                //set the movement.y to actually do things.
                 movement.y = yVel;
+                
                 //raycast into the moving direction, if there is gel, reflect / bounce off it.
                 if(previousXZVelocity.sqrMagnitude > 0.25f)
                 {
                     if(Physics.Raycast(transform.position, previousXZVelocity.normalized, out RaycastHit gelHit, halfHeight,  gelMask))
                     {
-                        Debug.DrawRay(gelHit.point, gelHit.normal, Color.red, 5);
-                        movement = Vector3.Reflect(movement, gelHit.normal);
-                        //set caches.
-                        SetCacheVars();
+                        ReflectOff(gelHit.normal);
                     }
                 }
             }
             
+            //set the previous velocity, and move the player using it.
             previousVelocity = movement;
             controller.Move(movement * Time.deltaTime);
 
-            void SetCacheVars()
+            //Local helper function to make the code a little nicer.
+            void ReflectOff(Vector3 normal)
             {
+                //Reflect the Vector off the normal
+                movement = Vector3.Reflect(movement, normal);
+                //Set the cache vars.
                 yVel = movement.y;
                 previousXZVelocity = new Vector3(movement.x, 0, movement.z);
                 previousVelocity = movement;
@@ -155,12 +158,6 @@ namespace UEGP3CA
 
             var dir = transform.forward * zInput + transform.right * xInput;
             return Vector3.ClampMagnitude(dir, 1f);
-        }
-
-        IEnumerator Delay(System.Action action, float time)
-        {
-            yield return new WaitForSeconds(time);
-            action();
         }
     }
 }
