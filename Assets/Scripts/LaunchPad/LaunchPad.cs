@@ -10,9 +10,12 @@ namespace UEGP3CA
         protected Vector3 launchVelocity;
         [SerializeField]
         protected Transform landingZone;
+        [SerializeField]
+        protected Animator animator;
 
         public Transform LandingZone => landingZone;
         private Vector3 worldSpaceLaunch;
+        readonly int triggerID = Animator.StringToHash("Launch");
 
         private void Start() 
         {
@@ -23,7 +26,10 @@ namespace UEGP3CA
         {
             ILaunchable launchable = other.GetComponent<ILaunchable>();
             if(launchable != null)
+            {
                 launchable.Launch(worldSpaceLaunch);
+                animator.SetTrigger(triggerID);
+            }
         }
     }
 }

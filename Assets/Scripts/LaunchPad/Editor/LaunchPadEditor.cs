@@ -14,12 +14,14 @@ namespace UEGP3CA.Edit
         Vector3 landingZone;
         Transform transform;
         float g;
+        bool recalculate = true;
 
         private void OnEnable() 
         {
             vectorProperty = serializedObject.FindProperty("launchVelocity");
             transform = (target as MonoBehaviour).transform;
             g = Mathf.Abs(Physics.gravity.y);
+            recalculate = true;
         }
 
         private void OnSceneGUI() 
@@ -30,9 +32,10 @@ namespace UEGP3CA.Edit
             //change the launch setting.
             Vector3 worldPosition = Handles.DoPositionHandle(transform.TransformPoint(vectorProperty.vector3Value), transform.rotation);
             Vector3 result = transform.InverseTransformPoint(worldPosition);
+            DrawArc(transform.position, result);
             //Helper tangent line
             Handles.DrawLine(transform.position, worldPosition);
-            if(result != vectorProperty.vector3Value)
+            if(recalculate = result != vectorProperty.vector3Value)
             {
                 //Recalculate the landing point.
                 landingZone = FindLandingZone(transform.position, transform.TransformVector(result));
@@ -44,29 +47,32 @@ namespace UEGP3CA.Edit
             serializedObject.ApplyModifiedProperties();
             //draw the arc.
             result = transform.TransformVector(result);
-            DrawArc(transform.position, result);
         }
+
+
+        float arcLength = 0;
+        float height;
+        float distance;
 
         void DrawArc(Vector3 start, Vector3 startTangent)
         {
-            //helpers.
-            Vector3 xzSpeed = new Vector3(startTangent.x, 0, startTangent.z);
+            if(recalculate || Mathf.Approximately(arcLength, 0))
+            {
+                //helpers.
+                Vector3 xzSpeed = new Vector3(startTangent.x, 0, startTangent.z);
 
-            //1. calculate flight time.
-            float halfT = startTangent.y / g;
+                //1. calculate flight time.
+                float halfT = startTangent.y / g;
 
-            //2. figure out highest point. 
-            Vector3 highPoint = start;
-            highPoint.y += Mathf.Pow(startTangent.y, 2) / (2*g);
-            highPoint += xzSpeed * halfT;
+                //2. figure out highest point. 
+                Vector3 highPoint = start;
+                highPoint.y += Mathf.Pow(startTangent.y, 2) / (2*g);
+                highPoint += xzSpeed * halfT;
 
-            //3. get the endpoint.
-            Vector3 endPoint = landingZone;
-            //(target as LaunchPad).LandingZone.position = endPoint;
-
-            float distance = Vector3.Distance(start, endPoint);
-            float height = highPoint.y - Vector3.Lerp(start, endPoint, 0.5f).y;
-            float arcLength = GetArcLength(distance, height);
+                distance = Vector3.Distance(start, landingZone);
+                height = highPoint.y - Vector3.Lerp(start, landingZone, 0.5f).y;
+                arcLength = GetArcLength(distance, height);
+            }
 
             //draw line segments every 0.5 units
             Vector3 lineStart = transform.position;
