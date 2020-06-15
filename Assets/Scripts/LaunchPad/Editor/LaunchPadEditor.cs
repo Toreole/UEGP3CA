@@ -32,13 +32,14 @@ namespace UEGP3CA.Edit
             //change the launch setting.
             Vector3 worldPosition = Handles.DoPositionHandle(transform.TransformPoint(vectorProperty.vector3Value), transform.rotation);
             Vector3 result = transform.InverseTransformPoint(worldPosition);
-            DrawArc(transform.position, result);
+            Vector3 direction = transform.TransformVector(result);
+            DrawArc(transform.position, direction);
             //Helper tangent line
             Handles.DrawLine(transform.position, worldPosition);
             if(recalculate = result != vectorProperty.vector3Value)
             {
                 //Recalculate the landing point.
-                landingZone = FindLandingZone(transform.position, transform.TransformVector(result));
+                landingZone = FindLandingZone(transform.position, direction);
             }
             result.x = 0;
             //Handles.DrawWireCube(result, Vector3.one);
