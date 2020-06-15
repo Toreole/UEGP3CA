@@ -122,12 +122,37 @@ PrefabInstance:
     - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 27.861685
+      value: 11.295251
       objectReference: {fileID: 0}
     - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.00000011920929
+      value: 0.000000059604645
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.99988383
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.015245855
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.437363
       objectReference: {fileID: 0}
     - target: {fileID: 6591368130715126442, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
@@ -137,12 +162,12 @@ PrefabInstance:
     - target: {fileID: 6591368130715126443, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
       propertyPath: launchVelocity.y
-      value: 12.115255
+      value: 6.815843
       objectReference: {fileID: 0}
     - target: {fileID: 6591368130715126443, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
       propertyPath: launchVelocity.z
-      value: 11.280123
+      value: 5.7083225
       objectReference: {fileID: 0}
     - target: {fileID: 6591368130715126447, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
@@ -1365,15 +1390,60 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 13.216914
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130363258029, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6591368130715126442, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
       propertyPath: m_Name
       value: Launchpad
       objectReference: {fileID: 0}
+    - target: {fileID: 6591368130715126443, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: launchVelocity.y
+      value: 8.096322
+      objectReference: {fileID: 0}
+    - target: {fileID: 6591368130715126443, guid: b61a10452c0edc044b2bf321a6a39cff,
+        type: 3}
+      propertyPath: launchVelocity.z
+      value: 7.49329
+      objectReference: {fileID: 0}
     - target: {fileID: 6591368130715126447, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.66
+      value: -3.68
       objectReference: {fileID: 0}
     - target: {fileID: 6591368130715126447, guid: b61a10452c0edc044b2bf321a6a39cff,
         type: 3}

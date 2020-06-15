@@ -7,22 +7,36 @@ namespace UEGP3CA.Edit
     [CustomEditor(typeof(LaunchPad))]
     public class LaunchPadEditor : Editor 
     {
+        //stuff of the launchpad.
         SerializedProperty vectorProperty;
+
+        //temp storage for preview.
+        Vector3 landingZone;
         Transform transform;
+        float g;
+
         private void OnEnable() 
         {
             vectorProperty = serializedObject.FindProperty("launchVelocity");
             transform = (target as MonoBehaviour).transform;
+            g = Mathf.Abs(Physics.gravity.y);
         }
 
         private void OnSceneGUI() 
         {
-            //change the launch setting.
-            //this is currently world space, should be local space.
-            //Vector3 launchSpeed = Handles.DoPositionHandle(transform.position + vectorProperty.vector3Value, transform.rotation) - transform.position;
+            //i like cyan :)
+            Handles.color = Color.cyan;
 
+            //change the launch setting.
             Vector3 worldPosition = Handles.DoPositionHandle(transform.TransformPoint(vectorProperty.vector3Value), transform.rotation);
             Vector3 result = transform.InverseTransformPoint(worldPosition);
+            //Helper tangent line
+            Handles.DrawLine(transform.position, worldPosition);
+            if(result != vectorProperty.vector3Value)
+            {
+                //Recalculate the landing point.
+                landingZone = FindLandingZone(transform.position, transform.TransformVector(result));
+            }
             result.x = 0;
             //Handles.DrawWireCube(result, Vector3.one);
 
@@ -36,7 +50,6 @@ namespace UEGP3CA.Edit
         void DrawArc(Vector3 start, Vector3 startTangent)
         {
             //helpers.
-            float g = Mathf.Abs(Physics.gravity.y);
             Vector3 xzSpeed = new Vector3(startTangent.x, 0, startTangent.z);
 
             //1. calculate flight time.
@@ -48,8 +61,8 @@ namespace UEGP3CA.Edit
             highPoint += xzSpeed * halfT;
 
             //3. get the endpoint.
-            Vector3 endPoint = start + xzSpeed * (2*halfT);
-            (target as LaunchPad).LandingZone.position = endPoint;
+            Vector3 endPoint = landingZone;
+            //(target as LaunchPad).LandingZone.position = endPoint;
 
             float distance = Vector3.Distance(start, endPoint);
             float height = highPoint.y - Vector3.Lerp(start, endPoint, 0.5f).y;
@@ -60,9 +73,7 @@ namespace UEGP3CA.Edit
             //the "velocity" at which the curve is being drawn.
             Vector3 velocity = startTangent;
 
-            //i like cyan :)
-            Handles.color = Color.cyan;
-            for(int i = 0; i < arcLength * 1 + 1; i++)
+            for(int i = 0; i < arcLength; i++)
             {
                 //speed in units / s
                 var speed = velocity.magnitude;
@@ -98,6 +109,43 @@ namespace UEGP3CA.Edit
             double addB = (bSquare /  (8.0 * height)) * Mathf.Log((4.0f*height + bSq16aSq) / distance);
 
             return (float)(addA + addB);
+        }
+
+        const float step = 1f;
+        const int maxStepCount = 64;
+        //Start location and start velocity have to be in world-space.
+        Vector3 FindLandingZone(Vector3 startLocation, Vector3 startVelocity)
+        {
+            //caches
+            Vector3 pos = startLocation;
+            Vector3 velocity = startVelocity;
+            float speed = velocity.magnitude;
+            Vector3 direction = startVelocity / speed;
+
+            for(int i = 0; i < maxStepCount; i++)
+            {
+                //Debug.DrawRay(pos, direction, Color.red, 2);
+                //step.
+                if(Physics.Raycast(pos, direction, out RaycastHit hit, step, int.MaxValue, QueryTriggerInteraction.Ignore))
+                {
+                    //Hit an object, this must be the end.
+                    var landing = (target as LaunchPad).LandingZone;
+                    landing.position = hit.point;
+                    landing.forward = hit.normal;
+                    
+                    return hit.point;
+                }
+                //deltaTime until next step
+                float dt = step / speed;
+                //offset
+                pos += direction * step;
+                //accelerate with gravity
+                velocity.y -= g * dt;
+                //set speed and direction.
+                speed = velocity.magnitude;
+                direction = velocity / speed;
+            }
+            return Vector3.zero;
         }
     }
 }
