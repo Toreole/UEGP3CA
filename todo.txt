@@ -1,0 +1,15 @@
+1. Skyrim shout
+    + figure out a way to make it different from the original
+
+2. Portal Launchpad
+    - launch objects and player
+    - draw preview in editor, edit utility
+    + rotate them?
+
+3. BOTW stasis (but in first person)
+    + transition to slomo at the start
+    + click on object
+    + stasis one object
+    + return to normal time 
+    + when too far away, break stasis
+    

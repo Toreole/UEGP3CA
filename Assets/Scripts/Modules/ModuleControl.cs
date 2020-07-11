@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UEGP3CA.Modules
 {
@@ -16,6 +17,10 @@ namespace UEGP3CA.Modules
         [SerializeField]
         protected LayerMask mask;
 
+        [SerializeField]
+        protected Image slomoOverlay;
+
+        bool inFullSlomo = false;
         StasisObject lastObject;
 
         private void Update()
@@ -27,21 +32,71 @@ namespace UEGP3CA.Modules
                 lastObject.SetStasis(false);
                 lastObject = null;
             }
+            if(Input.GetMouseButtonDown(1))
+            {
+                //test
+                if(Physics.Raycast(pivot.position, pivot.forward, out RaycastHit hit, range, mask))
+                    {
+                        if(hit.transform.TryGetComponent<StasisObject>(out StasisObject so))
+                        {
+                            if(lastObject == so)
+                            {
+                                so.AddImpulse(pivot.forward);
+                            }
+                        }
+                    }
+            }
         }
 
         void DoStasis()
         {
-            if(Physics.Raycast(pivot.position, pivot.forward, out RaycastHit hit, range, mask))
+            var slomoRoutine = StartCoroutine(EnterSloMo());
+            StartCoroutine(CheckForStasisObject(slomoRoutine));
+        }
+
+        IEnumerator EnterSloMo()
+        {
+            var col = slomoOverlay.color;
+            for(float t = 0; t < 0.4f; t += Time.unscaledDeltaTime)
             {
-                if(hit.transform.TryGetComponent<StasisObject>(out StasisObject so))
-                {
-                    if(lastObject)
-                        lastObject.SetStasis(false);
-                    so.SetStasis(true);
-                    Debug.Log("Set Stasis", so);
-                    lastObject = so;
-                }
+                col.a = t/ 0.4f;
+                slomoOverlay.color = col;
+                Time.timeScale = Mathf.Lerp(1f, 0.3f, col.a);
+                yield return null;
             }
+            inFullSlomo = true;
+        }
+
+        IEnumerator CheckForStasisObject(Coroutine slomoRoutine)
+        {
+            float startTime = Time.unscaledTime;
+            while(Time.unscaledTime - startTime < 5) //max 5 seconds
+            {
+                if(Input.GetMouseButtonDown(0))
+                {
+                    if(Physics.Raycast(pivot.position, pivot.forward, out RaycastHit hit, range, mask))
+                    {
+                        if(hit.transform.TryGetComponent<StasisObject>(out StasisObject so))
+                        {
+                            if(lastObject)
+                                lastObject.SetStasis(false);
+                            so.SetStasis(true);
+                            Debug.Log("Set Stasis", so);
+                            lastObject = so;
+
+                            break;
+                        }
+                    }
+                }
+                yield return null;
+            }
+            if(!inFullSlomo)
+                StopCoroutine(slomoRoutine);
+            inFullSlomo = false;
+            var c = slomoOverlay.color;
+            c.a = 0;
+            slomoOverlay.color = c;
+            Time.timeScale = 1f;
         }
 
     }

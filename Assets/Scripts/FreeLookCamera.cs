@@ -11,6 +11,13 @@ namespace UEGP3CA
         protected string forwardAxis, sideAxis;
         [SerializeField]
         protected string rotationXAxis, rotationYAxis;
+        [SerializeField]
+        protected bool useUnscaledTime = true;
+
+        private void Start() 
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
         private void Update()
         {
@@ -21,15 +28,17 @@ namespace UEGP3CA
             float zMove = Input.GetAxis(forwardAxis);
             float xMove = Input.GetAxis(sideAxis);
 
+            float deltaTime = useUnscaledTime? Time.unscaledDeltaTime : Time.deltaTime;
+
             //Rotate the camera.
-            var curSpeed = rotationSpeed * Time.deltaTime;
+            var curSpeed = rotationSpeed * deltaTime;
             transform.Rotate(new Vector3(rotX * curSpeed, 0), Space.Self);
             transform.Rotate(new Vector3(0, rotY * curSpeed), Space.World);
 
             //Move
             var dir = transform.right * xMove + transform.forward * zMove;
             dir = Vector3.ClampMagnitude(dir, 1);
-            var delta = dir * speed * Time.deltaTime;
+            var delta = dir * speed * deltaTime;
             transform.position += delta;
         }
     }
