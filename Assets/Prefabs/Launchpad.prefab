@@ -240,6 +240,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3987823899403992692}
+  - component: {fileID: 3684728791363106869}
   m_Layer: 2
   m_Name: Pivot
   m_TagString: Untagged
@@ -262,6 +263,25 @@ Transform:
   m_Father: {fileID: 6591368130715126447}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &3684728791363106869
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4570020736740574523}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 01e35913b8d598e4e919cc5568c52f32, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &5068684660464698414
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,7 +340,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6591368130363258028}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: -2.156563, z: 11.309999}
+  m_LocalPosition: {x: 0, y: -1.4695625, z: 10.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6591368130715126447}
@@ -356,7 +376,6 @@ GameObject:
   - component: {fileID: 6591368130715126447}
   - component: {fileID: 6591368130715126444}
   - component: {fileID: 6591368130715126443}
-  - component: {fileID: 4310080195732672386}
   m_Layer: 2
   m_Name: Launchpad
   m_TagString: Untagged
@@ -406,35 +425,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7972af79a005c144db85d3320eb0ad37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  launchVelocity: {x: 0, y: 7.072083, z: 6.24034}
+  launchVelocityA: {x: 0, y: 7.072083, z: 6.24034}
+  launchVelocityB: {x: 0, y: 0, z: 0}
   landingZoneA: {fileID: 6591368130363258029}
   landingZoneB: {fileID: 1497691554488753674}
-  animator: {fileID: 4310080195732672386}
+  animator: {fileID: 3684728791363106869}
   primaryRotation: {x: 0, y: 0, z: 0, w: 0}
   secondaryRotation: {x: 0, y: 0, z: 0, w: 0}
   rotationTime: 0.8
   startActive: 1
   canRotate: 0
   rotationPivot: {fileID: 3987823899403992692}
---- !u!95 &4310080195732672386
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6591368130715126442}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 01e35913b8d598e4e919cc5568c52f32, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &6745344072092084455
 GameObject:
   m_ObjectHideFlags: 0
@@ -451,7 +452,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1497691554488753674
 Transform:
   m_ObjectHideFlags: 0
