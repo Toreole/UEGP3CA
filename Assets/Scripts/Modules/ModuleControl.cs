@@ -20,31 +20,43 @@ namespace UEGP3CA.Modules
         [SerializeField]
         protected Image slomoOverlay;
 
+        float sqrRange;
         bool inFullSlomo = false;
         StasisObject lastObject;
 
+        private void Awake() 
+        {
+            sqrRange = range * range;
+        }
+
         private void Update()
         {
-            if(Input.GetKeyDown(KeyCode.F))
+            if(Input.GetKeyDown(KeyCode.F) && !inFullSlomo)
                 DoStasis();
-            if(Input.GetKeyDown(KeyCode.R) && lastObject)
+            //if an object is in stasis, release it if necessary.
+            if(lastObject)
             {
-                lastObject.SetStasis(false);
-                lastObject = null;
-            }
-            if(Input.GetMouseButtonDown(1))
-            {
-                //test
-                if(Physics.Raycast(pivot.position, pivot.forward, out RaycastHit hit, range, mask))
-                    {
-                        if(hit.transform.TryGetComponent<StasisObject>(out StasisObject so))
+                //square magnitude check for distance because its faster than magnitude.
+                if(Input.GetKeyDown(KeyCode.R) || (transform.position - lastObject.transform.position).sqrMagnitude > sqrRange)
+                {
+                    lastObject.SetStasis(false);
+                    lastObject = null;
+                }
+                //test adding a force to the object in stasis.
+                if(Input.GetMouseButtonDown(1))
+                {
+                    //test
+                    if(Physics.Raycast(pivot.position, pivot.forward, out RaycastHit hit, range, mask))
                         {
-                            if(lastObject == so)
+                            if(hit.transform.TryGetComponent<StasisObject>(out StasisObject so))
                             {
-                                so.AddImpulse(pivot.forward);
+                                if(lastObject == so)
+                                {
+                                    so.AddImpulse(pivot.forward);
+                                }
                             }
                         }
-                    }
+                }
             }
         }
 

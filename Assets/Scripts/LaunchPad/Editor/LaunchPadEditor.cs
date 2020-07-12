@@ -8,46 +8,124 @@ namespace UEGP3CA.Edit
     public class LaunchPadEditor : Editor 
     {
         //stuff of the launchpad.
-        SerializedProperty vectorProperty;
+        SerializedProperty vectorAProperty;
+        SerializedProperty vectorBProperty;
+        SerializedProperty seconRotationProperty;
+        SerializedProperty primRotationProperty;
 
         //temp storage for preview.
         Vector3 landingZone;
+        Transform pivot;
+        LaunchPad pad;
         Transform transform;
         float g;
         bool recalculate = true;
+        bool manualOverride = false;
 
         private void OnEnable() 
         {
-            vectorProperty = serializedObject.FindProperty("launchVelocity");
-            transform = (target as MonoBehaviour).transform;
+            vectorAProperty = serializedObject.FindProperty("launchVelocityA");
+            vectorBProperty = serializedObject.FindProperty("launchVelocityB");
+            seconRotationProperty = serializedObject.FindProperty("secondaryRotation");
+            primRotationProperty = serializedObject.FindProperty("primaryRotation");
+            
+            pad = target as LaunchPad;
+            transform = pad.transform;
+            pivot = pad.Pivot;
             g = Mathf.Abs(Physics.gravity.y);
             recalculate = true;
         }
 
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            manualOverride = EditorGUILayout.Toggle("Manual rotation", manualOverride);
+            if(manualOverride)
+            {
+                seconRotationProperty.quaternionValue = Quaternion.Euler(EditorGUILayout.Vector3Field("secondary", seconRotationProperty.quaternionValue.eulerAngles));
+                primRotationProperty.quaternionValue = Quaternion.Euler(EditorGUILayout.Vector3Field("primary", primRotationProperty.quaternionValue.eulerAngles));
+                pivot.rotation = pad.IsSecondary? seconRotationProperty.quaternionValue : primRotationProperty.quaternionValue;
+            }
+
+            if(pad.CanRotate)
+            {
+                if(Application.isPlaying)
+                {
+                    if(GUILayout.Button("Rotate"))
+                        pad.ToggleRotation();
+                }
+                else 
+                {
+                    if(GUILayout.Button($"Set {(pad.IsSecondary? "Secondary": "Primary")} rotation"))
+                    {
+                        if(pad.IsSecondary)
+                            seconRotationProperty.quaternionValue = pivot.rotation;
+                        else
+                            primRotationProperty.quaternionValue = pivot.rotation;
+                    }
+                    if(GUILayout.Button("Toggle active rotation"))
+                    {
+                        recalculate = true;
+                        //inverse secondary
+                        pad.IsSecondary = !pad.IsSecondary;
+                        pivot.rotation = pad.IsSecondary? seconRotationProperty.quaternionValue : primRotationProperty.quaternionValue;
+                    }
+                }
+            }
+            serializedObject.ApplyModifiedProperties();
+        }
+
         private void OnSceneGUI() 
         {
+            //stop the scene GUI when in playmode, it fucks shit up.
+            if(Application.isPlaying)
+                return;
+            //clear the scene view and re-draw it for better visibility.
+            Camera cam = SceneView.GetAllSceneCameras()[0];
+            Handles.ClearCamera(new Rect(0, 0, 1000, 1000), cam);
+            cam.Render();
+
+            //if the pad is able to rotate and the inspector isnt in manual mode, show the pivot rotation handle.
+            if(pad.CanRotate && !manualOverride)
+            {
+                //secondary direction
+                Handles.color = Color.magenta;
+                var seconDir = (!pad.IsSecondary? seconRotationProperty : primRotationProperty).quaternionValue * (!pad.IsSecondary ? vectorBProperty.vector3Value : vectorAProperty.vector3Value);
+                Handles.DrawLine(transform.position, transform.position + seconDir);
+                Handles.Label(transform.position + seconDir, (pad.IsSecondary ? "Primary" : "Secondary"));
+
+                var rotation = Handles.RotationHandle(pivot.rotation, transform.position + pivot.up * 2f);
+                if(pad.IsSecondary)
+                    seconRotationProperty.quaternionValue = rotation;
+                else 
+                    primRotationProperty.quaternionValue = rotation;
+                pivot.rotation = rotation;
+            }
+
             //i like cyan :)
             Handles.color = Color.cyan;
 
+            //the active vector property to edit.
+            var activeVector = pad.IsSecondary? vectorBProperty : vectorAProperty;
+
             //change the launch setting.
-            Vector3 worldPosition = Handles.DoPositionHandle(transform.TransformPoint(vectorProperty.vector3Value), transform.rotation);
-            Vector3 result = transform.InverseTransformPoint(worldPosition);
-            Vector3 direction = transform.TransformVector(result);
+            Vector3 worldPosition = Handles.DoPositionHandle(pivot.TransformPoint(activeVector.vector3Value), pivot.rotation);
+            Vector3 result = pivot.InverseTransformPoint(worldPosition);
+            Vector3 direction = pivot.TransformVector(result);
+            //Draw the arc.
             DrawArc(transform.position, direction);
             //Helper tangent line
             Handles.DrawLine(transform.position, worldPosition);
-            if(recalculate = result != vectorProperty.vector3Value)
+            if(recalculate || result != activeVector.vector3Value)
             {
                 //Recalculate the landing point.
                 landingZone = FindLandingZone(transform.position, direction);
             }
             result.x = 0;
             //Handles.DrawWireCube(result, Vector3.one);
+            activeVector.vector3Value = result;
 
-            vectorProperty.vector3Value = result;
             serializedObject.ApplyModifiedProperties();
-            //draw the arc.
-            result = transform.TransformVector(result);
         }
 
 
@@ -136,7 +214,7 @@ namespace UEGP3CA.Edit
                 if(Physics.Raycast(pos, direction, out RaycastHit hit, step, int.MaxValue, QueryTriggerInteraction.Ignore))
                 {
                     //Hit an object, this must be the end.
-                    var landing = (target as LaunchPad).LandingZone;
+                    var landing = pad.IsSecondary? pad.LandingZoneB : pad.LandingZoneA;
                     landing.position = hit.point;
                     landing.forward = hit.normal;
                     

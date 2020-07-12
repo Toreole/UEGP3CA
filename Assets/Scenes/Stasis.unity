@@ -635,7 +635,7 @@ MonoBehaviour:
   sideAxis: Horizontal
   rotationXAxis: Mouse Y
   rotationYAxis: Mouse X
-  useUnscaledTime: 0
+  useUnscaledTime: 1
 --- !u!1 &1114773658
 GameObject:
   m_ObjectHideFlags: 0
