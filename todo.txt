@@ -1,15 +1,20 @@
 1. Skyrim shout
-    + figure out a way to make it different from the original
+    🗸 figure out a way to make it different from the original
+    🗸 self knockback?
+    + strength falloff by distance?
+    - always have a positive y in the velocity? (no this sucks.)
 
 2. Portal Launchpad
-    - launch objects and player
-    - draw preview in editor, edit utility
-    + rotate them?
+    🗸 launch objects and player
+    🗸 draw preview in editor, edit utility
+    🗸 rotate
+    🗸 toggle between rotations in editor.
+    🗸 each rotation has an individual launchspeed
 
 3. BOTW stasis (but in first person)
-    + transition to slomo at the start
-    + click on object
-    + stasis one object
-    + return to normal time 
-    + when too far away, break stasis
+    🗸 transition to slomo at the start
+    🗸 click on object
+    🗸 stasis one object
+    🗸 return to normal time 
+    🗸 when too far away, break stasis
     

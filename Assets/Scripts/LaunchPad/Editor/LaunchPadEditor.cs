@@ -179,9 +179,9 @@ namespace UEGP3CA.Edit
         }
 
         //ARC LENGTH OF PARABOLA
-        //     1                      b²     4*a + SQR(b² + 16 * a²)
-        // L = - SQR(b² + 16 * a²) + --- ln( ---------------------- )
-        //     2                     8*a               b        
+        //     1                      b²       4*a + SQR(b² + 16 * a²)
+        // L = - SQR(b² + 16 * a²) + --- logn( ---------------------- )
+        //     2                     8*a                 b        
         //b = distance from start to end
         //a = "height"/ vertical distance from midpoint to highest point.
         float GetArcLength(float distance, float height)

@@ -32,6 +32,12 @@ namespace UEGP3CA.Shouts
         protected float fadeOutTime = 2f;
         [SerializeField]
         protected Image buttonPress;
+        [SerializeField]
+        protected bool hidePreviewArea = true;
+        [SerializeField]
+        protected SimplePlayerController playerController;
+        [SerializeField]
+        protected float knockbackIntensity = 0.1f;
 
         readonly int shoutTrigger = Animator.StringToHash("Yeet");
 
@@ -59,6 +65,8 @@ namespace UEGP3CA.Shouts
         //easy editor visualization.
         private void OnDrawGizmos()
         {
+            if(hidePreviewArea)
+                return;
             var tempMatrix = transform.localToWorldMatrix;
             var worldMatrix = Gizmos.matrix;
             Gizmos.matrix = tempMatrix;
@@ -166,9 +174,12 @@ namespace UEGP3CA.Shouts
                 {
                     var dir = hit.transform.position - origin;
                     dir.Normalize();
+                    //dir.y = Mathf.Abs(dir.y); //never go straight down. thinking...
                     rb.AddForce(dir * strength, ForceMode.Impulse);
                 }
             }
+            //test adding knockback to the player.
+            playerController?.Launch(transform.forward * -strength * knockbackIntensity);
             //set the cooldown.
             remainingCooldown = (cooldown = finalShout.cooldown);
         }
