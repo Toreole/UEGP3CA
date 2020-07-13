@@ -7,14 +7,11 @@ namespace UEGP3CA
         public static int EmissionProperty = Shader.PropertyToID("_EmissionColor");
         public static int MainColorProperty = Shader.PropertyToID("_Color");
 
-        public static bool TryGetComponent<T>(this Component self, out T component) where T : Component
+        //Because 2018.4 doesnt have this yet.
+        public static bool TryGetComponent<T>(this Component self, out T component) where T : class
         {
             component = self.GetComponent<T>();
-            return component;
-        }public static bool TryGetComponent<T>(this GameObject self, out T component) where T : Component
-        {
-            component = self.GetComponent<T>();
-            return component;
+            return component != null;
         }
     }
 }

@@ -94,12 +94,15 @@ namespace UEGP3CA.Edit
                 Handles.DrawLine(transform.position, transform.position + seconDir);
                 Handles.Label(transform.position + seconDir, (pad.IsSecondary ? "Primary" : "Secondary"));
 
+                Quaternion oldRotation = pivot.rotation;
                 var rotation = Handles.RotationHandle(pivot.rotation, transform.position + pivot.up * 2f);
                 if(pad.IsSecondary)
                     seconRotationProperty.quaternionValue = rotation;
                 else 
                     primRotationProperty.quaternionValue = rotation;
                 pivot.rotation = rotation;
+                //set recalculate flag if the rotation has changed.
+                recalculate = recalculate | oldRotation != rotation;
             }
 
             //i like cyan :)

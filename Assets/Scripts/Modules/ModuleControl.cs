@@ -93,7 +93,7 @@ namespace UEGP3CA.Modules
                             if(lastObject)
                                 lastObject.SetStasis(false);
                             so.SetStasis(true);
-                            Debug.Log("Set Stasis", so);
+                            //Debug.Log("Set Stasis", so);
                             lastObject = so;
 
                             break;

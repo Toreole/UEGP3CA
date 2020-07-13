@@ -60,7 +60,7 @@ namespace UEGP3CA
             for(float t = 0; t < rotationTime; t += Time.deltaTime)
             {
                 rotationPivot.rotation = Quaternion.Lerp(start, goal, t/rotationTime);
-                print(t.ToString("0.00"));
+                //print(t.ToString("0.00"));
                 yield return null;
             }
             isSecondary = !isSecondary;
@@ -74,12 +74,11 @@ namespace UEGP3CA
         {
             if(activeLaunchpad)
             {
-                ILaunchable launchable = other.GetComponent<ILaunchable>();
-                if(launchable != null)
+                if(other.TryGetComponent<ILaunchable>(out ILaunchable launchable))
                 {
                     launchable.Launch(rotationPivot.TransformVector(isSecondary? launchVelocityB : launchVelocityA));
                     animator.SetTrigger(triggerID);
-                    print("test");
+                    //print("test");
                 }
             }
         }

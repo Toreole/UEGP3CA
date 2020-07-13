@@ -145,7 +145,7 @@ namespace UEGP3CA
             //Local helper function to make the code a little nicer.
             void ReflectOff(Vector3 normal)
             {
-                Debug.Log("Reflect");
+                //Debug.Log("Reflect");
                 //Reflect the Vector off the normal
                 movement = Vector3.Reflect(previousVelocity, normal);
                 //Set the cache vars.
@@ -169,9 +169,9 @@ namespace UEGP3CA
             previousVelocity = launchVelocity;
             previousXZVelocity = new Vector3(launchVelocity.x, 0, launchVelocity.z);
             yVel = launchVelocity.y;
-            Debug.DrawRay(transform.position, launchVelocity, Color.red, 5);
-            Debug.DrawRay(transform.position, previousXZVelocity, Color.magenta, 5);
-            Debug.DrawRay(transform.position, new Vector3(0, yVel), Color.green, 5);
+            //Debug.DrawRay(transform.position, launchVelocity, Color.red, 5);
+            //Debug.DrawRay(transform.position, previousXZVelocity, Color.magenta, 5);
+            //Debug.DrawRay(transform.position, new Vector3(0, yVel), Color.green, 5);
             transform.position += launchVelocity * Time.deltaTime;
             isGrounded = false;
         }
